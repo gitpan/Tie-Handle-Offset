@@ -5,11 +5,11 @@ author:
 build_requires:
   File::Find: 0
   File::Temp: 0
-  Test::More: 0.96
+  Test::More: 0
 configure_requires:
-  ExtUtils::MakeMaker: 6.30
+  ExtUtils::MakeMaker: 6.17
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.300009, CPAN::Meta::Converter version 2.120900'
+generated_by: 'Dist::Zilla version 4.300009, CPAN::Meta::Converter version 2.120630'
 license: apache
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -26,19 +26,15 @@ no_index:
 provides:
   Tie::Handle::Offset:
     file: lib/Tie/Handle/Offset.pm
-    version: 0.001
+    version: 0.002
   Tie::Handle::SkipHeader:
     file: lib/Tie/Handle/SkipHeader.pm
-    version: 0.001
+    version: 0.002
 requires:
-  Scalar::Util: 0
-  Tie::StdHandle: 0
-  parent: 0
-  perl: 5.006
+  Tie::Handle: 0
   strict: 0
-  warnings: 0
 resources:
   bugtracker: http://rt.cpan.org/Public/Dist/Display.html?Name=Tie-Handle-Offset
   homepage: https://github.com/dagolden/tie-handle-offset
   repository: https://github.com/dagolden/tie-handle-offset.git
-version: 0.001
+version: 0.002

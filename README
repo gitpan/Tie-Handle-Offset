@@ -2,7 +2,7 @@ NAME
     Tie::Handle::Offset - Tied handle that hides the beginning of a file
 
 VERSION
-    version 0.001
+    version 0.002
 
 SYNOPSIS
       use Tie::Handle::Offset;

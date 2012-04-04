@@ -1,32 +1,26 @@
 use strict;
-use warnings;
+BEGIN{ if (not $] < 5.006) { require warnings; warnings->import } }
 
 package Tie::Handle::Offset;
 # ABSTRACT: Tied handle that hides the beginning of a file
-our $VERSION = '0.001'; # VERSION
+our $VERSION = '0.002'; # VERSION
 
-use parent qw/Tie::StdHandle/;
-use Scalar::Util qw( refaddr weaken );
+use Tie::Handle;
+our @ISA = qw/Tie::Handle/;
 
 #--------------------------------------------------------------------------#
-# Inside-out data storage and accessor
+# Glob slot accessor
 #--------------------------------------------------------------------------#
-
-my %HEAD_OFF = ();
 
 sub offset {
   my $self = shift;
   if ( @_ ) {
-    return $HEAD_OFF{ refaddr $self } = shift;
+    return *{$self}{HASH}->{offset} = shift;
   }
   else {
-    return $HEAD_OFF{ refaddr $self };
+    return *{$self}{HASH}->{offset};
   }
 }
-
-# Track objects for thread-safety
-
-my %REGISTRY = ();
 
 #--------------------------------------------------------------------------#
 # Tied handle methods
@@ -40,30 +34,30 @@ sub TIEHANDLE
 
   my $self    = \do { no warnings 'once'; local *HANDLE};
   bless $self,$class;
-  my $id = refaddr $self;
-  weaken( $REGISTRY{ $id } = $self );
+
+  # initialize glob HASH slot for attribute storage
+  *{$self} = {} unless ref *{$self}{HASH};
+
   $self->OPEN(@_) if (@_);
   if ( $params->{offset} ) {
-    $HEAD_OFF{ $id } = $params->{offset};
-    seek($self, $HEAD_OFF{ $id }, 0);
+    seek( $self, $self->offset( $params->{offset} ), 0 );
   }
   return $self;
 }
 
 sub TELL    {
-  my $cur = tell($_[0]) - $HEAD_OFF{ refaddr $_[0] };
+  my $cur = tell($_[0]) - $_[0]->offset;
   # XXX shouldn't ever be less than zero, but just in case...
   return $cur > 0 ? $cur : 0;
 }
 
 sub SEEK    {
   my ($self, $pos, $whence) = @_;
-  my $id = refaddr $self;
   my $rc;
   if ( $whence == 0 || $whence == 1 ) { # pos from start, cur
-    $rc = seek($self, $pos + $HEAD_OFF{ $id }, $whence);
+    $rc = seek($self, $pos + $self->offset, $whence);
   }
-  elsif ( _size($self) + $pos < $HEAD_OFF{$id} ) { # from end
+  elsif ( _size($self) + $pos < $self->offset ) { # from end
     $rc = '';
   }
   else {
@@ -74,8 +68,7 @@ sub SEEK    {
 
 sub OPEN
 {
-  my $id = refaddr $_[0];
-  $HEAD_OFF{ $id } = 0;
+  $_[0]->offset(0);
   $_[0]->CLOSE if defined($_[0]->FILENO);
   @_ == 2 ? open($_[0], $_[1]) : open($_[0], $_[1], $_[2]);
 }
@@ -90,36 +83,21 @@ sub _size {
 }
 
 #--------------------------------------------------------------------------#
-# DESTROY()
+# Methods copied from Tie::StdHandle to avoid dependency on Perl 5.8.9/5.10.0
 #--------------------------------------------------------------------------#
 
-sub DESTROY {
-    my $self = shift;
-    delete $HEAD_OFF{ refaddr $self };
-    delete $REGISTRY{ refaddr $self };
-}
+sub EOF     { eof($_[0]) }
+sub FILENO  { fileno($_[0]) }
+sub CLOSE   { close($_[0]) }
+sub BINMODE { binmode($_[0]) }
+sub READ     { read($_[0],$_[1],$_[2]) }
+sub READLINE { my $fh = $_[0]; <$fh> }
+sub GETC     { getc($_[0]) }
 
-#--------------------------------------------------------------------------#
-# CLONE()
-#--------------------------------------------------------------------------#
-
-sub CLONE {
-    for my $old_id ( keys %REGISTRY ) {
-
-        # look under old_id to find the new, cloned reference
-        my $object = $REGISTRY{ $old_id };
-        my $new_id = refaddr $object;
-
-        # relocate data
-        $HEAD_OFF{ $new_id } = $HEAD_OFF{ $old_id };
-        delete $HEAD_OFF{ $old_id };
-
-        # update the weak reference to the new, cloned object
-        weaken ( $REGISTRY{ $new_id } = $object );
-        delete $REGISTRY{ $old_id };
-    }
-
-    return;
+sub WRITE
+{
+ my $fh = $_[0];
+ print $fh substr($_[1],0,$_[2])
 }
 
 1;
@@ -136,7 +114,7 @@ Tie::Handle::Offset - Tied handle that hides the beginning of a file
 
 =head1 VERSION
 
-version 0.001
+version 0.002
 
 =head1 SYNOPSIS
 

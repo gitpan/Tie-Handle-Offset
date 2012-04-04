@@ -2,9 +2,9 @@
 use strict;
 use warnings;
 
-use 5.006;
 
-use ExtUtils::MakeMaker 6.30;
+
+use ExtUtils::MakeMaker 6.17;
 
 
 
@@ -14,23 +14,20 @@ my %WriteMakefileArgs = (
   "BUILD_REQUIRES" => {
     "File::Find" => 0,
     "File::Temp" => 0,
-    "Test::More" => "0.96"
+    "Test::More" => 0
   },
   "CONFIGURE_REQUIRES" => {
-    "ExtUtils::MakeMaker" => "6.30"
+    "ExtUtils::MakeMaker" => "6.17"
   },
   "DISTNAME" => "Tie-Handle-Offset",
   "EXE_FILES" => [],
   "LICENSE" => "apache",
   "NAME" => "Tie::Handle::Offset",
   "PREREQ_PM" => {
-    "Scalar::Util" => 0,
-    "Tie::StdHandle" => 0,
-    "parent" => 0,
-    "strict" => 0,
-    "warnings" => 0
+    "Tie::Handle" => 0,
+    "strict" => 0
   },
-  "VERSION" => "0.001",
+  "VERSION" => "0.002",
   "test" => {
     "TESTS" => "t/*.t"
   }
