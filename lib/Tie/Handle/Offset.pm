@@ -3,7 +3,7 @@ BEGIN{ if (not $] < 5.006) { require warnings; warnings->import } }
 
 package Tie::Handle::Offset;
 # ABSTRACT: Tied handle that hides the beginning of a file
-our $VERSION = '0.002'; # VERSION
+our $VERSION = '0.003'; # VERSION
 
 use Tie::Handle;
 our @ISA = qw/Tie::Handle/;
@@ -15,10 +15,10 @@ our @ISA = qw/Tie::Handle/;
 sub offset {
   my $self = shift;
   if ( @_ ) {
-    return *{$self}{HASH}->{offset} = shift;
+    return ${*$self}{offset} = shift;
   }
   else {
-    return *{$self}{HASH}->{offset};
+    return ${*$self}{offset};
   }
 }
 
@@ -34,9 +34,6 @@ sub TIEHANDLE
 
   my $self    = \do { no warnings 'once'; local *HANDLE};
   bless $self,$class;
-
-  # initialize glob HASH slot for attribute storage
-  *{$self} = {} unless ref *{$self}{HASH};
 
   $self->OPEN(@_) if (@_);
   if ( $params->{offset} ) {
@@ -114,7 +111,7 @@ Tie::Handle::Offset - Tied handle that hides the beginning of a file
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 SYNOPSIS
 

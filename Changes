@@ -1,5 +1,13 @@
 Revision history for Tie-Handle-Offset
 
+0.003     2012-04-05 11:05:59 America/New_York
+
+    [BUGFIX]
+
+    - Fix glob-slot object for older perls
+
+    - Fix tests for older Test::More
+
 0.002     2012-04-04 06:45:12 America/New_York
 
     [OTHER]

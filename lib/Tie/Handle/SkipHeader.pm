@@ -3,7 +3,7 @@ BEGIN{ if (not $] < 5.006) { require warnings; warnings->import } }
 
 package Tie::Handle::SkipHeader;
 # ABSTRACT: Tied handle that hides an RFC822-style header
-our $VERSION = '0.002'; # VERSION
+our $VERSION = '0.003'; # VERSION
 
 use Tie::Handle::Offset;
 our @ISA = qw/Tie::Handle::Offset/;
@@ -41,7 +41,7 @@ Tie::Handle::SkipHeader - Tied handle that hides an RFC822-style header
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 SYNOPSIS
 
